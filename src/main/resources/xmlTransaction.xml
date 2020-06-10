@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+    <!-- 自动扫描注解 -->
+    <context:component-scan base-package="com.xmltransaction"></context:component-scan>
+    <!-- 引入外部properties配置文件 -->
+    <context:property-placeholder location="classpath:db.properties" />
+    <!-- 配置数据源 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+      <property name="user" value="${user}"></property>
+      <property name="password" value="${password}"></property>
+      <property name="jdbcUrl" value="${jdbcUrl}"></property>
+      <property name="driverClass" value="${driverClass}"></property>
+    </bean>
+    <!-- 配置jdbcTemplate -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+      <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    
+    <!-- xml版事务控制步骤 -->
+    <!-- 1.注册一个事务管理器（相当于切面类）， 再对这个事务管理器进行相应配置 -->
+    <!-- 2.配置出事务方法 -->
+    <!-- 3.告诉spring哪些方法是事务方法，然后按照切入点表达式切入事务方法 -->
+    <!-- 注册一个事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    
+    <aop:config>
+      <aop:pointcut expression="execution(* com.xmltransaction.StockService.*(..))" id="txPoint"/>
+      <!-- 事务建议, advice-ref:指向事务管理器的配置-->
+      <aop:advisor advice-ref="myAdvice" pointcut-ref="txPoint" />
+    </aop:config>
+    
+    <!-- 对事务管理器进行相应配置 -->
+    <!-- transaction-manager:指定对哪个事务管理器进行配置 -->
+    <tx:advice id="myAdvice" transaction-manager="transactionManager">
+      <!-- 事务属性-->
+      <tx:attributes>
+        <!-- tx:method:指定哪些方法要加事务 -->
+        <tx:method name="checkout" propagation="REQUIRES_NEW" isolation="REPEATABLE_READ" timeout="3" read-only="false" no-rollback-for="{ArithmeticException.class}" rollback-for="FileNotFoundException.class" />
+        <tx:method name="ChangePrice" propagation="REQUIRED" />
+        <tx:method name="checkOutAndChangePrice" />
+      </tx:attributes>
+    </tx:advice>
+</beans>

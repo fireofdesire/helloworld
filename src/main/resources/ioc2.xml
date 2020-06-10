@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+    <!-- 注册一个book组件备用 -->
+    <bean id="book" class="com.pojo.Book">
+      <property name="bookName" value="西游记"></property>
+      <property name="bookWriter" value="章承恩"></property>
+    </bean>
+
+    <bean id="person" class="com.pojo.Person">
+      <property name="name">
+        <null/>
+      </property>
+    </bean>
+
+    <bean id="person2" class="com.pojo.Person">
+      <property name="name" value="张三"></property>
+      <property name="sex" value="男"></property>
+      <!-- 引用外部bean -->
+      <!-- book = aoc2.getBean("book") -->
+      <property name="book" ref="book"></property>
+    </bean>
+    
+    <bean id="person3" class="com.pojo.Person">
+      <property name="name" value="张三"></property>
+      <property name="sex" value="男"></property>
+      <!-- 引用内部bean -->
+      <property name="book">
+          <bean class="com.pojo.Book">
+	      <property name="bookName" value="西游记"></property>
+	      <property name="bookWriter" value="章承恩"></property>
+	      </bean>
+      </property>      
+    </bean>
+    
+    <bean id="person4" class="com.pojo.Person">
+      <property name="books">
+        <list>
+          <!-- 内部引用bean -->
+          <bean id="userlessbean" class="com.pojo.Book">
+            <property name="bookName" value="红楼梦"></property>
+            <property name="bookWriter" value="曹雪芹"></property>
+          </bean>
+          <!-- 外部引用bean -->
+          <ref bean="book" />
+        </list>
+      </property>
+    </bean>
+    
+    <bean id="person5" class="com.pojo.Person">
+      <property name="maps">
+        <map>
+          <!-- entry:代表一个键值对 -->
+          <entry key="狗鸡" value="米兰"></entry>
+          <!-- 外部引用 -->
+          <entry key="西游记" value-ref="book"></entry>
+          <entry key="红楼梦">
+            <!-- 内部引用 -->
+            <bean class="com.pojo.Book">
+              <property name="bookName" value="红楼梦"></property>
+              <property name="bookWriter" value="曹雪芹"></property>
+            </bean>
+          </entry>
+          <entry key="国庆节">
+            <!-- 使用标签value赋值，与直接使用value属性赋值效果是一样的 -->
+            <value>101</value>
+          </entry>
+        </map>
+      </property>
+    </bean>
+    
+    <bean id="person6" class="com.pojo.Person">
+      <property name="properties">
+        <props>
+          <!-- key和value都是String类型 所以直接value值写在标签体中 -->
+          <prop key="三国演义">罗贯中</prop>
+          <prop key="水浒传">施耐庵</prop>
+        </props>
+      </property>
+    </bean>
+    <!-- util名称空间创建集合类型的bean,以供引用 -->
+    <util:map id="mymap">
+      <!-- entry:代表一个键值对 -->
+          <entry key="狗鸡" value="米兰"></entry>
+          <!-- 外部引用 -->
+          <entry key="西游记" value-ref="book"></entry>
+          <entry key="红楼梦">
+            <!-- 内部引用 -->
+            <bean class="com.pojo.Book">
+              <property name="bookName" value="红楼梦"></property>
+              <property name="bookWriter" value="曹雪芹"></property>
+            </bean>
+          </entry>
+          <entry key="国庆节">
+            <!-- 使用标签value赋值，与直接使用value属性赋值效果是一样的 -->
+            <value>101</value>
+          </entry>
+    </util:map>
+    <util:list id="mybooks">
+      <bean id="userlessbean" class="com.pojo.Book">
+            <property name="bookName" value="复活"></property>
+            <property name="bookWriter" value="列夫托尔斯泰"></property>
+      </bean>
+      <!-- 外部引用bean -->
+      <ref bean="book" />
+    </util:list>
+    <bean id="person7" class="com.pojo.Person">
+      <!-- 引用创建的util名称空间的mymap -->
+      <property name="maps" ref="mymap"></property>
+      <!-- 引用创建的util名称空间的mybooks -->
+      <property name="books" ref="mybooks"></property>
+    </bean>
+    
+    <!-- 级联属性的赋值，级联属性:属性的属性 -->
+    <bean id="person8" class="com.pojo.Person">
+      <property name="book">
+        <ref bean="book" />
+      </property>
+      <property name="book.bookName" value="人间失格">
+      </property>
+    </bean>
+    
+    <!-- parent属性:用于bean的配置信息的继承 -->
+    <!-- 继承信息中已经有的属性值，是不能覆盖的 -->
+    <bean id="person9" class="com.pojo.Person" parent="person8">
+      <property name="book">
+        <bean class="com.pojo.Book">
+          <property name="bookName" value="双城记"></property>
+          <property name="bookWriter" value="狄更斯"></property>
+        </bean>
+      </property>
+    </bean>
+    
+    <!-- abstract属性:抽象bean不能创建实例，只能用parent属性来继承 -->
+    <bean id="person10" class="com.pojo.Person" abstract="true">
+      <property name="name" value="李四"></property>
+    </bean>
+    
+</beans>

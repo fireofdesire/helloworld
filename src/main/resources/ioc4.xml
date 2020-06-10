@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+    
+    <!-- 自动扫描注解来注册组件，依赖context名称空间 -->
+	<context:component-scan base-package="com.pojo" use-default-filters="false">
+	  <!-- 
+	  context:exclude-filter自定义扫描时，在基础包下但不去扫描的类有哪些。
+	    type:过滤的规则
+		    annotation：通过注解的类型来规定类不会被扫描注册到ioc容器中
+		    assignable：通过全类名来规定类不会被扫描注册到ioc容器中
+		    aspectj：AOP中的aspectj表达式
+		    custom：自定义一个实现了TypeFilter接口的类，重写match方法来过滤不需要注册到容器中的类
+		    regex：写正则表达式来过滤不需要注册到容器中的类
+		expression:全类名
+	  -->
+	  <!-- <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+	  <context:exclude-filter type="assignable" expression="com.pojo.Book"/> -->
+	  <context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+	  <context:include-filter type="assignable" expression="com.pojo.Book"/>
+	</context:component-scan>
+</beans>

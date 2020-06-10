@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mybatis.dao.EmployeeDao">
+  <!-- 在相应的dao层接口的实现xml文件中开启二级缓存 -->
+  <cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
+  <insert id="addEmployee" useGeneratedKeys="true" keyProperty="id">
+        <!-- 支持自增的数据库直接使用useGeneratedKeys="true" keyProperty="id" -->
+        insert into t_emp(name,gender,email) values(#{employee.name},#{employee.gender},#{employee.email})
+        <!-- 不支持自增的数据库实现主键自增 -->
+        <!-- 
+	    <selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="id">
+	    select max(id)+1 from t_emp
+	    </selectKey>
+        insert into t_emp(id,name,gender,email) values(#{employee.id},#{employee.name},#{employee.gender},#{employee.email})
+        --> 
+  </insert>
+  <delete id="deleteEmployee">
+    delete from t_emp where id = #{id}
+  </delete>
+  <update id="updateEmployee">
+    update t_emp set email = #{employee.email} where id = #{employee.id}
+  </update>
+  <select id="getEmployeeById" resultType="employee">
+    select * from t_emp where id = #{id}
+  </select>
+  <!-- databaseId:设置数据库厂商标识，当使用MySql这个厂商的数据库时，用相应的查询语句 -->
+  <select id="getEmployeeById" resultType="employee" databaseId="mysql">
+    select * from t_emp where id = #{id}
+  </select>
+  <!-- databaseId:设置数据库厂商标识，当使用Oracle这个厂商的数据库时，用相应的查询语句 -->
+  <select id="getEmployeeById" resultType="employee" databaseId="orcl">
+    select * from t_emp where id = #{id}
+  </select>
+  <!-- 查询全部信息并用返回list集合 -->
+  <select id="getAllEmployeeReturnList" resultType="employee">
+    select * from t_emp
+  </select>
+  <!-- 查询单条记录封装map集合返回 -->
+  <select id="getEmployeeByIdReturnMap" resultType="map">
+    select * from t_emp where id = #{id}
+  </select>
+  <!-- 查询多条记录封装map集合返回 -->
+  <select id="getAllEmployeeReturnMap" resultType="employee">
+    select * from t_emp
+  </select>
+</mapper>

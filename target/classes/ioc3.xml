@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+    <!-- 用了注解，就要进行扫描  -->
+    <context:component-scan base-package="com.jdbcTemplate"></context:component-scan>
+    
+    <!-- depends-on属性:决定bean组件的依赖,能够手动调整bean组件的加载顺序 -->
+	<bean id="person" class="com.pojo.Person" depends-on="book">
+	</bean>
+	<bean id="book" class="com.pojo.Book">
+	</bean>
+	
+	<!-- 
+	scope属性:bean的作用域 ,即指定bean是单实例，多实例，request，session，默认都是单实例的
+	  singleton:单实例
+	    1.在容器启动前就会完成bean实例的创建，并保存在ioc容器中
+	    2.无论获取多少次对象，都是获取之前创建好的实例
+	  prototype:多实例
+	    1.容器启动时不会默认把bean的实例创建好
+	    2.在获取对象时，才会对相应bean的实例进行创建，且每一次获取都会创建新的对象。
+	  request:同一次request会创建一个bean实例
+	  session:同一次session会创建一个bean实例
+	-->
+	
+	<bean id="dog2" class="com.pojo.Dog" scope="singleton">
+	</bean>
+	<bean id="dog3" class="com.pojo.Dog" scope="prototype">
+	</bean>
+	
+	<!--
+	 工厂模式:工厂帮我们创建对象，所谓的工厂就是帮帮我们创建对象的类
+	   静态工厂:直接使用工厂类的静态方法创建对象
+	   实例工厂:创建好工厂的实例对象，再调用这个对象的方法来创建对象
+	-->
+	<!-- 静态工厂bean的配置 -->
+    <!-- factory-method:指定静态工厂的用于创建bean实例对象的静态方法 -->
+	<bean id="book2" class="com.beanfactory.BookStaticFactory" factory-method="getBook">
+	  <!-- 为静态方法指定参数只能使用constructor-arg标签 -->
+	  <constructor-arg name="bookName" value="哈姆雷特"></constructor-arg>
+	  <constructor-arg name="bookWriter" value="莎士比亚"></constructor-arg>
+	</bean>
+	
+	<!-- 实例工厂的使用 -->
+	<!-- 1.配置实例工厂的bean -->
+	<bean id="bookInstanceFactory" class="com.beanfactory.BookInstanceFactory">
+	</bean>
+	<!-- 配置要创建的对象bean -->
+	<!-- factory-bean:指定要使用的工厂 -->
+	<bean id="book3" class="com.pojo.Book" factory-bean="bookInstanceFactory" factory-method="getBook">
+	  <!-- 使用Constructor-arg配置参数 -->
+	  <constructor-arg name="bookName" value="雾都孤儿"></constructor-arg>
+	  <constructor-arg name="bookWriter" value="狄更斯"></constructor-arg>
+	</bean>
+	
+	<!-- 实现了spring自带的FactoryBean接口的类会被spring容器识别为bean工厂 -->
+	<bean id="mybookFactory" class="com.beanfactory.MyBookFactory">
+	</bean>
+	
+	<!--
+	创建带有生命周期方法的bean
+		bean的生命周期 ：bean从创建到销毁
+		  ioc容器中注册的bean:
+		    1、单实例的bean:容器启动(调用构造器创建实例对象)======》调用bean的初始化方法======》容器关闭(调用bean的销毁方法)
+		    2、多实例的bean:获取bean(调用构造器创建实例对象)======》调用bean的初始化方法======》容器关闭，但是不会销毁相应的实例化对象
+	      spring可以为bean定义生命周期方法，但必须是无参方法
+	-->
+	<bean id="singletonbook" class="com.pojo.Book" init-method="initbook" destroy-method="destorybook"> 
+	</bean>
+	<bean id="prototypebook" scope="prototype" class="com.pojo.Book" init-method="initbook" destroy-method="destorybook"> 
+	</bean>
+	
+	<!-- 注册bean的后置处理器：实现了spring自带的接口 -->
+	
+	<!-- <bean id="myPostProcessor" class="com.postprocessor.MyPostPrcessor">
+	</bean>  -->
+	
+	
+	<!-- 引用外部属性文件:需要用到context名称空间 -->
+	<!-- location:指定外部属性文件的位置，classpath:db.properties：表示外部属性文件在类路径下-->
+	<context:property-placeholder location="classpath:db.properties" />
+	<!-- 数据库连接池适合单例模式 -->
+	<!-- spring管理连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	  <property name="user" value="${user}"></property>
+	  <property name="password" value="${password}"></property>
+	  <property name="jdbcUrl" value="${jdbcUrl}"></property>
+	  <property name="driverClass" value="${driverClass}"></property> 
+	</bean>
+	<!-- 通过注册一个jdbcTemplate组件来操作数据库,注册数据源组件就是为了交给jdbcTemplate进行操作 -->
+	<!-- spring提供的jdbcTemplate类就是用来进行简单的数据库操作的类 -->
+	<bean class="org.springframework.jdbc.core.JdbcTemplate">
+	  <!-- 通过构造器注入dataSource,去 org.springframework.jdbc.core.JdbcTemplate的源码里去看-->
+	  <constructor-arg name="dataSource" ref="dataSource">
+	  </constructor-arg>
+	</bean>
+	<!-- 注册一个能够使用具名参数的NamedParameterJdbcTemplate组件 -->
+	<bean id="namedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+	  <constructor-arg name="dataSource" ref="dataSource">
+	  </constructor-arg>
+	</bean>
+	
+	<!-- 
+	autowire:自动装配 ，实质就是给对象类型属性赋值
+	  byName:用相应的对象类型的属性的name作为id，自动找到ioc容器中对应id的bean并完成装配，找不到就装配null值
+	  byType:以属性的Type作为依据去找ioc容器中对应的bean进行装配，找不到相应的bean就装配null值，找到多个符合条件的bean就报错
+	  Constructor:
+	              1.先按照有参构造器的参数类型进行匹配对应的bean，完成装配
+	              2如果按照类型找到多个符合条件的bean，则会再把构造器参数的name作为id继续匹配，匹配不成功，就装配null值
+	              3不会报错
+	-->
+	<bean id="person2" class="com.pojo.Person" autowire="byName">
+	</bean>
+	<bean id="person3" class="com.pojo.Person" autowire="byType" scope="prototype">
+	</bean>
+	<bean id="person4" class="com.pojo.Person" autowire="constructor">
+	</bean>
+	
+	<!-- 
+	SPEL(spring expression language)spring表达式语言的用法:#{  }或${  }
+	  使用字面量和运算符
+	  引用bean或bean的属性值
+	 调用非静态方法或静态方法
+	    静态方法：#{T(全类名).静态方法名()}
+	    非静态方法：对象.方法名
+	-->
+	<bean id="person5" class="com.pojo.Person">
+	  <!-- spel使用字面量 -->
+	  <property name="name" value="#{666*666}"></property>
+	  <!-- spel引用bean -->
+	  <property name="book" value="#{book2}"></property>
+	  <!-- spel调用静态方法 -->
+	  <!-- <property name="sex" value="#{T(java.util.UUID).randomUUID().toString().substring(0,5)}"></property> -->
+	  <!-- spel调用非静态方法 -->
+	  <property name="sex" value="#{book2.getBookName()}"></property>
+	</bean>
+</beans>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+    
+    <context:component-scan base-package="com.springmvc"></context:component-scan>
+    <!-- InternalResourceViewResolver视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+      <property name="prefix" value="/WEB-INF/view/"></property>
+      <property name="suffix" value=".jsp"></property>
+      <property name="order" value="2"></property>
+    </bean>
+    <!-- 国际化资源管理器 -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="login"></property>
+    </bean>
+    <!-- 注册springmvc自带的SessionLocaleResolver区域信息解析器 -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver"></bean>
+    <!-- 自定义区域信息解析器 -->
+    <!-- <bean id="localeResolver" class="com.springmvc.MyLocationReslover"></bean> -->
+    
+    <!-- 注册自定义的视图解析器 -->
+    <bean class="com.springmvc.MyViewResolver">
+      <!-- order:设置视图解析器的执行顺序 -->
+      <property name="order" value="1"></property>
+    </bean>
+    
+    <!-- 注册springMVC自带的SimpleMappingExeceptionResolver -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+      <!-- exceptionMappings:配置相关异常发生时，去到哪个错误显示页面 -->
+      <property name="exceptionMappings">
+        <props>
+          <!-- key:异常全类名 value:发生异常时经过视图解析器之后要去的页面,写在标签体中 -->
+          <prop key="java.lang.NullPointerException">error</prop>
+        </props>
+      </property>
+      <!-- exceptionAttribute:指定页面取异常信息时用的key值 -->
+      <property name="exceptionAttribute" value="errorMessage">
+      </property>
+    </bean>
+    
+    <!-- 请求过后直接到达页面,不经过Controller -->
+    <!-- path:指定请求路径，view-name:指定页面的名字 -->
+    <mvc:view-controller path="/hi/StraightGoView" view-name="crossControllertoView" />
+    <!-- 开启mvc注解驱动模式，如果不开启就会导致其它要经过Controller的请求失效 -->
+    <!-- conversion-service="myConversionService":告知springmvc使用自定义的数据类型转换器 -->
+    <mvc:annotation-driven conversion-service="myConversionService"></mvc:annotation-driven>
+    <!-- 设置前端控制器默认放过(css样式、js文件等静态资源) -->
+    <mvc:default-servlet-handler/>
+    
+    <!-- 配置ConversionServiceFactoryBean工厂 -->
+    <bean id="myConversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+      <property name="converters">
+        <set>
+          <bean class="com.springmvc.MyConverter"></bean>
+        </set>
+      </property>
+    </bean>
+    
+    <!-- 配置文件上传管理器 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" >
+      <property name="maxUploadSize" value="#{1024*1024.10}"></property>
+      <property name="defaultEncoding" value="utf-8"></property>
+    </bean>
+    
+    <!-- 配置自定义的拦截器 -->
+    <mvc:interceptors>
+      <!-- 直接配置bean，默认拦截所有请求 -->
+      <!-- <bean class="com.springmvc.MyInterceptor"></bean> -->
+      <!-- spring默认的localInterceptor -->
+      <mvc:interceptor>
+        <mvc:mapping path="/hi/locale"/>
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"></bean>
+      </mvc:interceptor>
+      <!-- <mvc:interceptor>标签内部配置拦截器的bean和具体拦截哪些请求 -->
+      <mvc:interceptor>
+        <mvc:mapping path="/hi/download"/>
+        <mvc:mapping path="/hi/oneupload"/>
+        <bean class="com.springmvc.MyInterceptor"></bean>
+      </mvc:interceptor>
+      <mvc:interceptor>
+        <mvc:mapping path="/hi/download"/>
+        <mvc:mapping path="/hi/oneupload"/>
+        <bean class="com.springmvc.MySecondInterceptor"></bean>
+      </mvc:interceptor>
+    </mvc:interceptors>
+</beans>

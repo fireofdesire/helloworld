@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- 注册组件到ioc容器中 -->
+    <bean id="dog" class="com.pojo.Dog">
+      <property name="name" value="哈巴狗"></property>
+      <property name="race" value="癞皮狗"></property>
+    </bean>
+    
+    <bean id="dog2" class="com.pojo.Dog">
+      <property name="name" value="土狗"></property>
+      <property name="race" value="中华田园犬"></property>
+    </bean>
+
+    <bean id="dog3" class="com.pojo.Dog">
+      <constructor-arg name="name" value="沙皮狗"></constructor-arg>
+      <constructor-arg name="race" value="胖狗"></constructor-arg>
+    </bean>
+    
+    <bean id="dog4" class="com.pojo.Dog">
+      <constructor-arg value="傻狗" index="1" type="java.lang.String"></constructor-arg>
+      <constructor-arg value="哈士奇"></constructor-arg>
+    </bean>
+    
+    <!-- p名称空间的使用  -->
+    <bean id="dog5" class="com.pojo.Dog"
+    p:name="黑狗" p:race="nigger">	
+    </bean>
+    
+</beans>

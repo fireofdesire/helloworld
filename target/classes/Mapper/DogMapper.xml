@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.mybatis.dao.DogDao">
+  <!-- 与namespace为com.mybatis.dao.EmployeeDao共用一块缓存 -->
+  <cache-ref namespace="com.mybatis.dao.EmployeeDao"/>
+  <select id="getDogInfoById" resultMap="diedDog">
+    select * from dog inner join dogtag on dogid = id where dogid = #{dogId}
+  </select>
+  <resultMap type="com.mybatis.pojo.Dog" id="diedDog">
+    <id property="dogId" column="dogid" />
+    <result property="dogName" column="dogname" />
+    <!-- 级联属性封装对象类型的属性 -->
+    <!-- <result property="dogTag.id" column="id" />
+    <result property="dogTag.location" column="location" /> -->
+    <!-- association封装对象类型的属性 -->
+    <!-- <association property="dogTag" javaType="com.mybatis.pojo.DogTag">
+      <result property="id" column="id" />
+      <result property="location" column="location" />
+    </association> -->
+  </resultMap>
+  <!-- 分步查询 -->
+  <select id="getDogInfoByIdSimple" resultMap="twoStepSelect">
+    select * from dog where dogid = #{dogId}
+  </select>
+  <resultMap type="com.mybatis.pojo.Dog" id="twoStepSelect">
+    <id property="dogId" column="dogid" />
+    <result property="dogName" column="dogname" />
+    <!-- fetchType：可以覆盖MyBatis全局配置的懒加载选项 -->
+    <association property="dogTag" select="getDogTagInfoByIdSimple" column="dogid" fetchType="lazy">
+    </association>
+  </resultMap>
+  <select id="getDogTagInfoByIdSimple" resultType="com.mybatis.pojo.DogTag">
+    select * from dogtag where id = #{Id}
+  </select>
+</mapper>

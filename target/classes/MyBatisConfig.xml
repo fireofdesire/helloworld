@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties resource= "MyBatis.properties"></properties>
+	<settings>
+	  <!-- 开启全局缓存 -->
+	  <setting name="cacheEnabled" value="true" />
+	  <!-- 开启log4j打印日志 -->
+	  <setting name="logImpl" value="STDOUT_LOGGING"/>
+	  <!-- 开启懒加载 -->
+	  <setting name="lazyLoadingEnabled" value="true"/>
+	  <!-- aggressiveLazyLoading：是否直接加载全部属性，在开启懒加载的前提下，开启属性按需加载，value的默认值是false -->
+	  <setting name="aggressiveLazyLoading" value="false"/>
+	</settings>
+	<typeAliases>
+	  <!-- <typeAlias type="com.mybatis.pojo.Employee"/> -->
+	  <package name="com.mybatis.pojo"/>
+	</typeAliases>
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	<!-- databaseIdProvider:MyBatis用来提升数据库移植性的标签 -->
+	<databaseIdProvider type="DB_VENDOR">
+	  <!-- name:数据库厂商标识，value：为数据库厂商标识所取的别名 -->
+	  <property name="MySQL" value="mysql"/>
+	  <property name="Oracle" value="orcl"/>
+	</databaseIdProvider>
+	<!-- 引入映射文件 -->
+	<mappers>
+		<mapper resource="Mapper/EmployeeMapper.xml" />
+		<mapper resource="Mapper/Slut.xml" />
+		<mapper resource="Mapper/DogMapper.xml" />
+		<mapper resource="Mapper/TeacherMapper.xml" />
+		<!-- 简单的数据库操作可以直接使用注解完成，就不用写sql映射文件了，但必须在MyBatis全局配置文件中的mapper标签下使用class属性配置dao层接口全类名 -->
+		<!-- <mapper class="com.mybatis.dao.EmployeeDao" /> -->
+		<!-- <package name="com.mybatis.dao"/> -->
+	</mappers>
+</configuration>

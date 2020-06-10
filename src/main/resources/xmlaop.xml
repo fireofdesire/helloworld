@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+    <!--
+            注解:快速方便
+            配置:功能完善,重要的用配置，不重要的用注解
+     -->
+    <!-- xml配置使用aop步骤(与注解使用aop步骤基本一致，唯一不同的是，注解方式多了使用aop名称空间扫描注解的步骤) -->
+    <!-- 第一步:导入目标类、切面类 -->
+    <bean id="xmlTarget" class="com.xmlaop.XmlTarget">
+    </bean>
+    <bean id="xmlAspectOne" class="com.xmlaop.XmlAspectOne">
+    </bean>
+    <bean id="xmlAspectTwo" class="com.xmlaop.XmlAspectTwo">	
+    </bean>
+    <!-- 第二步:告诉ioc容器谁是切面类 -->
+    <aop:config>
+      <!-- 注册一个全部切面范围内的切入表达式 :相当于提取可重用切入点表达式-->
+      <aop:pointcut expression="execution(* com.xmlaop.*.*(..))" id="globalPointCut"/>
+      <!-- 注册一个切面 -->
+      <aop:aspect ref="xmlAspectOne" order="1">
+        <!-- 使用配置文件时，通知方法的执行顺序与配置的先后顺序相关，先配置的就先；切面的执行顺序同样与配置的顺序相关，先配置的就先切入。-->
+        <!-- 环绕通知 -->
+        <aop:around method="around" pointcut-ref="beanPointCut" />
+        <!-- 注册一个当前切面范围内的切点表达式:相当于提取可重用切入点表达式 -->
+        <aop:pointcut expression="execution(* com.xmlaop.*.*(..))" id="beanPointCut"/>
+        <!-- 前置通知 -->
+        <!-- method:通知方法名，pointcut-ref:引切入点表达式,pointcut:切入点表达式 -->
+        <aop:before method="before" pointcut-ref="beanPointCut" />
+        <!-- 异常通知 -->
+        <aop:after-throwing method="exeception" pointcut="execution(* com.xmlaop.*.*(..))" throwing="exception" />
+        <!-- 返回通知 -->
+        <aop:after-returning method="re" pointcut-ref="beanPointCut" returning="result" />
+        <!-- 后置通知 -->
+        <aop:after method="after" pointcut-ref="beanPointCut" />
+      </aop:aspect>
+      <aop:aspect ref="xmlAspectTwo" order="-1">
+        <!-- 前置通知 -->
+        <!-- method:通知方法名，pointcut-ref:引切入点表达式,pointcut:切入点表达式 -->
+        <aop:before method="before" pointcut-ref="globalPointCut" />
+        <!-- 异常通知 -->
+        <aop:after-throwing method="exeception" pointcut="execution(* com.xmlaop.*.*(..))" throwing="exception" />
+        <!-- 返回通知 -->
+        <aop:after-returning method="re" pointcut-ref="globalPointCut" returning="result" />
+        <!-- 后置通知 -->
+        <aop:after method="after" pointcut-ref="globalPointCut" />
+      </aop:aspect>
+    </aop:config>
+    
+</beans>

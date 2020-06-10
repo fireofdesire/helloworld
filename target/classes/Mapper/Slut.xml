@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="com.mybatis.dao.SlutDao">
+    <select id="getAllSlutInfo" resultMap="diedSlut">
+      select * from slut
+    </select>
+    <resultMap type="com.mybatis.pojo.Slut" id="diedSlut">
+		<id property="name"  column="slutName" />
+		<result property="type"  column="slutType" />
+	</resultMap>
+	<select id="getSlutInfo" resultMap="diedSlut">
+      select * from slut
+      <where>
+          <!-- 
+          <if test="name!=null and !name.equals('')">
+	        and slutName = #{name}
+	      </if>
+	      <if test="type!=null and !type.equals('')">
+	        and slutType = #{type}
+      	  </if> 
+      	  -->
+	      <trim suffixOverrides="and">
+	          <if test="name!=null and !name.equals('')">
+		        slutName = #{name} and
+		      </if>
+		      <if test="type!=null and !type.equals('')">
+		        slutType = #{type}
+	      	  </if>
+	      </trim>   
+      </where>  
+    </select>
+    <select id="getSlutInfoIn" resultMap="diedSlut">
+      select * from slut
+      <if test="names.size>0">
+        <where>
+            slutName in
+            <foreach collection="names" item="name" open="(" close=")" separator=",">
+              #{name}
+            </foreach>
+      </where> 
+      </if> 
+    </select>
+    <select id="getSlutInfoChoose" resultMap="diedSlut">
+      select * from slut
+      <where>
+            <choose>
+              <when test="name!=null and !name.equals('')">
+              slutName = #{name}
+              </when>
+              <when test="type!=null and !type.equals('')">
+              slutType = #{type}
+              </when>
+              <otherwise>
+              1=1
+              </otherwise>
+            </choose>
+      </where>  
+    </select>
+    <sql id="updateSql">update slut</sql>
+    <update id="updateSlutInfo">
+      <include refid="updateSql"></include>
+      <!-- update slut --> 
+      <set>
+        <if test="type!=null and !type.equals('')">
+          slutType = #{type}
+        </if>
+      </set>
+      <where>
+        <if test="name!=null and !name.equals('')">
+        slutName = #{name}
+        </if>
+      </where>
+    </update>
+  </mapper>

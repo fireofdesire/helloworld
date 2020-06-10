@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	id="WebApp_ID" version="3.1">
+  <!-- The front controller of this Spring Web application, responsible for handling all application requests -->
+	<!-- ContextLoaderListener:在项目启动时，就创建spring的容器 -->
+	<!-- <context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:spring.xml</param-value>
+	</context-param>
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener> -->
+	
+	<servlet>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+		    <!-- contextConfigLocation:指定springmvc的配置文件位置 -->
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath:springmvc.xml</param-value>
+		</init-param>
+		<!-- load-on-startup:使servlet由原本在第一次访问的时候创建对象，变为服务器启动时创建对象，该参数越小就越早在服务器启动时加载， -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<!-- Map all requests to the DispatcherServlet for handling -->
+	<servlet-mapping>
+		<servlet-name>springDispatcherServlet</servlet-name>
+		<!-- 
+		/和/*都是拦截所有请求，
+		/不会拦截*.jsp请求
+		/*拦截范围更大，会拦截到*.jsp请求 
+		-->
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 
+	字符编码过滤器:
+	用于解决请求的乱码问题，但是要注意，通常情况下CharacterEncodingFilter的位置是在所有其它过滤器的前面。
+	-->
+	<filter>
+	  <filter-name>CharacterEncodingFilter</filter-name>
+	  <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+	  <init-param>
+	    <!-- encoding:指定解决post请求乱码 -->
+	    <param-name>encoding</param-name>
+	    <param-value>UTF-8</param-value>
+	  </init-param>
+	  <!-- forceEncoding=true:无论客户端请求是否包含了编码，都用过滤器里的编码来解析请求  -->
+	  <init-param>
+	    <param-name>forceEncoding</param-name>
+	    <param-value>true</param-value>
+	  </init-param>
+	</filter>
+	<filter-mapping>
+	  <filter-name>CharacterEncodingFilter</filter-name>
+	  <url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- 
+	使用REST风格发起PUT/DELETE请求时，
+	要添加HiddenHttpMethodFilter这个过滤器 ，
+	它是springmvc提供的，能够用来把普通的POST请求转为PUT/DELETE请求
+	-->
+	<filter>
+	  <filter-name>HiddenHttpMethodFilter</filter-name>
+	  <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+	</filter>
+	<filter-mapping>
+	  <filter-name>HiddenHttpMethodFilter</filter-name>
+	  <url-pattern>/*</url-pattern>
+	</filter-mapping>
+</web-app>
