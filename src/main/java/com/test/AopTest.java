@@ -19,6 +19,7 @@ public class AopTest
 		 * (aoc.getBean(Target.class)).div(1, 1);
 		 * System.out.println((aoc.getBean(Target.class)).getClass());
 		 */
+		System.out.println("git推送一号");
 		System.out.println("git推送二号");
 	}
 }
